@@ -1,48 +1,28 @@
-import { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { useRouter, SplashScreen } from 'expo-router';
-import { getOnboardingStatus } from '../src/services/storage';
+import { useEffect } from 'react';
+import { SplashScreen, useRouter } from 'expo-router';
+import TastySplashScreen from '../src/screens/SplashScreen';
 
-// Prevent auto-hide while we check onboarding status
+// Prevent the native splash screen from auto-hiding so our custom animation runs
 SplashScreen.preventAutoHideAsync();
 
 /**
- * Entry screen — checks AsyncStorage and redirects to
- * onboarding or auth based on the "hasOnboarded" flag.
+ * Root entry – shows the animated Tasty splash screen then navigates
+ * forward. Replace '/(next-screen)' with your real destination route.
  */
 export default function IndexScreen() {
-    const [isChecking, setIsChecking] = useState(true);
     const router = useRouter();
 
+    const handleComplete = () => {
+        // TODO: replace with your real next screen once it's built
+        // e.g. router.replace('/(auth)/landing');
+        console.log('Splash complete – navigate to next screen here');
+    };
+
     useEffect(() => {
-        const checkOnboarding = async () => {
-            try {
-                const hasOnboarded = await getOnboardingStatus();
-
-                if (hasOnboarded) {
-                    router.replace('/(auth)/landing');
-                } else {
-                    router.replace('/(onboarding)');
-                }
-            } catch (error) {
-                console.warn('[Index] Check error:', error);
-                router.replace('/(onboarding)');
-            } finally {
-                setIsChecking(false);
-                SplashScreen.hideAsync();
-            }
-        };
-
-        checkOnboarding();
+        // Hide the native splash once our component is mounted
+        SplashScreen.hideAsync();
     }, []);
 
-    // Show blank screen while checking (splash screen covers it)
-    return <View style={styles.container} />;
+    return <TastySplashScreen onComplete={handleComplete} />;
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#000000',
-    },
-});
